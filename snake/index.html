@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>Snake Game</title>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		var snake = $("#snake"), gridNum = 10, gridH = 300, status = {}, context, h;
+		var directions = {
+			"n" : new Point(0, -1),
+			"s" : new Point(0, 1),
+			"w" : new Point(-1, 0),
+			"e" : new Point(1, 0),
+			"115": "s",
+			"97": "w",
+			"119": "n",
+			"100": "e"
+		};
+
+		function Point(x, y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		Point.prototype.add = function(point){
+			this.x = this.x + point.x;
+			this.y = this.y + point.y;
+			return this;
+		}
+
+		Point.prototype.sub = function(point) {
+			this.x = this.x - point.x;
+			this.y = this.y - point.y;
+			return this;
+		}
+
+		Point.prototype.copy = function(point) {
+			this.x = point.x;
+			this.y = point.y;
+		}
+
+		Point.prototype.stroke = function(){
+			context.globalCompositeOperation = "destination-over";
+			context.fillStyle = "red";
+			context.fillRect(this.x*h + 1, this.y*h +1, h - 2, h - 2);
+		}
+
+		Point.prototype.clearStroke = function() {
+			if (this.x && this.y) {
+				context.globalCompositeOperation = "source-out";
+				context.clearRect(this.x*h + 1, this.y*h + 1, h - 2, h - 2);
+			}
+			// context.strokeRect(x*h, x*h, h, h);
+		}
+
+		Point.prototype.arc = function() {
+			// context.fillStyle = "red";
+			context.strokeStyle = "blue";
+			context.beginPath();
+			context.arc(this.x*h + h/2, this.y*h + h/2, (h-2)/2, 0, 2*Math.PI, false);
+			context.stroke();
+		}
+		
+		Point.prototype.equal = function(point) {
+			return this.x == point.x && this.y == point.y;
+		}
+
+		function Snake() {
+			var randomP = randomPoint(gridNum);
+			// console.log(Object.prototype.toString.call(randomP));
+			// console.log(Object.prototype.toString.call(h));
+			this.snakes = [new Point(randomP, randomP)];
+			this.intervalFood;
+			this.intervalSnake;
+			this.beforePoint = new Point(undefined, undefined);
+			this.nowPoint = new Point(undefined, undefined);
+			this.beforeDirection;
+			this.nowDirection;
+		}
+
+		Snake.prototype.bindKey = function() {
+			// snake.bind("keydown");
+			// snake.key
+			// console.log("bindKey");
+			var snakeKey = this;
+			// console.log($("#snakeWrap").length);
+			document.getElementById("snake").focus();
+			document.getElementById("snake").addEventListener('keypress', function(event) {
+				// console.log(event);
+				if (event.keyCode == 113) {
+					snakeKey.stop();
+					alert("quit success");
+					return;
+				}
+				snakeKey.beforeDirection = snakeKey.nowDirection;
+				snakeKey.nowDirection = directions[directions[event.keyCode + ""]];
+				// console.log(event.keyCode);
+				// console.log(snakeKey.snakes);
+			});
+		}
+
+		Snake.prototype.food = function() {
+			var x = randomPoint(gridNum);
+			var y = randomPoint(gridNum);
+			this.nowPoint.x = x;
+			this.nowPoint.y = y;
+			var snakeT = this;
+			this.intervalFood = setInterval(function(){
+				snakeT.beforePoint.clearStroke();
+				snakeT.nowPoint.stroke();
+				snakeT.beforePoint.copy(snakeT.nowPoint);
+				snakeT.nowPoint.x = randomPoint(gridNum);
+				snakeT.nowPoint.y = randomPoint(gridNum);
+				while(snakeT.snakes.indexOf(snakeT.nowPoint) != -1) {
+					snakeT.nowPoint.x = randomPoint(gridNum);
+					snakeT.nowPoint.y = randomPoint(gridNum);
+				}
+			}, 4000);
+		}
+
+		Snake.prototype.process = function() {
+			var processK = this;
+			// console.log(this.snakes[0]);
+			this.intervalSnake = setInterval(function() {
+				if (processK.nowDirection) {
+					// console.log(processK.snakes[0]);
+					var newP = new Point(undefined, undefined);
+					newP.copy(processK.snakes[0]);
+					newP.add(processK.nowDirection)
+					if(!processK.over(newP)){
+						processK.snakes.unshift(newP);
+						// processK.snakes[0].arc();
+						if (newP.equal(processK.beforePoint)) {
+							console.log("equal equal");
+							processK.beforePoint.clearStroke();
+							processK.snakes[0].arc();
+							// processK.snakes.push(processK.nextPoint());
+						} else {
+							processK.snakes[0].arc();
+							processK.snakes[processK.snakes.length - 1].clearStroke();
+							processK.snakes.pop(processK.snakes[processK.snakes.length - 1]);
+						}
+					}
+				}
+			}, 400);
+		}
+
+		Snake.prototype.start = function() {
+			var start = this;
+			for (var i = 0, len = this.snakes.length; i < len; i++) {
+				this.snakes[i].arc();
+			}
+			// $("#snakeWrap").focus();
+			this.bindKey();
+			// this.intervalSnake = setInterval(function() {start.process(start)}, 1000);
+		}
+
+		Snake.prototype.stop = function() {
+			clearInterval(this.intervalSnake);
+			clearInterval(this.intervalFood);
+		}
+
+		Snake.prototype.over = function(point) {
+			var result = point.x < 1 || point.x > gridNum || point.y < 1 || point.y > gridNum;
+			if (result) {
+				alert('Game Over');
+				this.stop();
+			}
+
+			return result;
+		}
+
+		Snake.prototype.nextPoint = function() {
+			var len = this.snakes.length, po;
+			var obj_1 = this.snakes[len - 1];
+			var obj_2 = this.snakes[len-2] || this.snakes[len - 1];
+			if (Math.abs(obj_1.x - obj_2.x) == Math.abs(this.nowDirection.x) 
+				&& Math.abs(obj_1.y - obj_2.y) == Math.abs(this.nowDirection.y)) {
+				po = obj_1.sub(this.nowDirection);
+			} else {
+				po = obj_1.sub(this.beforeDirection);
+			}
+
+			po.arc();
+			return po;
+		}
+
+		$(function() {
+			var snake1 = document.getElementById("snake");
+			var snakeG;
+			// console.log(snake.height());
+			if (snake1.getContext) {
+				context = snake1.getContext("2d");
+				context.strokeStyle = "black";
+				context.globalCompositeOperation = "source-out";
+				// context.beginPath();
+				createGrid(context, gridNum)
+				snakeG = new Snake();
+				// context.stroke();
+				snakeG.food();
+				snakeG.start();
+				snakeG.process();
+				// context.strokeRect(0, 0, 300, 300);
+			}
+		});
+
+		function createGrid(context, rowsN) {
+			// console.log(gridH);
+			h = Math.floor(parseInt(gridH)/rowsN);
+			// console.log(h);
+			for (var rows = 1; rows <= rowsN; rows++) {
+				for(var cols = 1; cols <= rowsN; cols++) {
+					context.strokeRect(cols*h, rows*h, h, h);
+				}
+			}	
+		}
+
+		function createGrid1(context, rowsN) {
+			// console.log(gridH);
+			h = Math.floor(parseInt(gridH)/rowsN);
+			// console.log(h);
+
+			for (var i = 1; i <= gridNum + 1; i++) {
+				context.moveTo(i*h, h);
+				context.lineTo(i*h, gridH + h);
+			}
+
+			for (var i = 1; i <= gridNum + 1; i++) {
+				context.moveTo(h, i*h);
+				context.lineTo(gridH + h, i*h);
+			}
+		}
+
+		function randomPoint(len) {
+			return Math.floor(Math.random()*parseInt(len)) + 1;
+		}
+
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div height="">&nbsp;</div>
+	</div>
+	<div class="container" style="border: 1px solid black; height: 500px;">
+		<div>&nbsp;</div>
+		<div class="row">
+			<div class="col-md-12" style="text-align: center; vertical-align:middle;" id="snakeWrap">
+				<canvas id="snake" height="360" width="360" tabindex='0' style="outline: none">A Snake Game</canvas>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		&nbsp;
+	</div>
+</body>
+</html>

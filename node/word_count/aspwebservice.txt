@@ -1,0 +1,16 @@
+longitude 121.526306
+latitude  31.2275333
+室外告警
+{"isYes":false,"title":"该地址附近基站当前不存在告警","btsList":[],"btsListDetail":[],"messgeInfo":"无告警信息"}
+室外干扰
+{"isYes":false,"title":"该地址附近基站当前不存在干扰，24小时内存在干扰","btsList":[{"bts_code":"10-5-0-440","longitude":"121.526270","latitude":"31.227630","dis":"150"}],"btsListDetail":[{"bts_code":"10-5-0-440-3","cell_code":"3","bts_name":"沈家宅局","address":"福山路380号（近潍坊路）","min_begin_time":"2012-07-01 10:00:00","max_begin_time":"2013-08-27 23:00:00","type_name":"1X"},{"bts_code":"10-5-0-440-1","cell_code":"1","bts_name":"沈家宅局","address":"福山路380号（近潍坊路）","min_begin_time":"2012-07-01 10:00:00","max_begin_time":"2013-08-27 23:00:00","type_name":"1X"},{"bts_code":"10-5-0-440-2","cell_code":"2","bts_name":"沈家宅局","address":"福山路380号（近潍坊路）","min_begin_time":"2012-07-01 10:00:00","max_begin_time":"2013-08-27 23:00:00","type_name":"1X"}],"messgeInfo":"有干扰信息"}
+弱覆盖参考点
+{"title":"该位置无弱覆盖参考点","btsList":[],"btsListDetail":[],"messgeInfo":"不存在弱覆盖"}
+getPlansite
+{"title":"该地址附近存在规划站","btsList":[{"bts_code":"PDn160","address":"浦电路东方路东南200米","COL01":"","COL02":"","longitude":"121.526232","latitude":"31.221941","dis":"700"}],"btsListDetail":[{"bts_code":"PDn160","address":"浦电路东方路东南200米","COL01":"","COL02":"","longitude":"121.526232","latitude":"31.221941","dis":"700"}],"messgeInfo":"存在规划站"}"
+getPlansiteIndoor
+{"title":"该地址不存在规划站","btsList":[],"btsListDetail":[],"messgeInfo":"不存在规划站"}
+getroomsite
+{"title":"该地址没有室内分布","btsList":[],"btsListDetail":[],"messgeInfo":"不在室内中"}
+getanalyze
+{"title":"该地址不存在群障","btsList":[],"btsListDetail":[],"messgeInfo":"不存在群障"}
